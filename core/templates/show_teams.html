@@ -1,0 +1,32 @@
+{%extends 'base.html'%}
+
+{%block title %} Teams {%endblock%}
+
+{%block content %}
+
+<div class="pb-6 grid grid-cols-4 gap-4 bg-gray-200">
+    <div class="col-span-1 px-4 py-4">
+        <hr class="my-6">
+        <p class="font-semibold">Teams</p>
+
+        <ul>
+            {% for team in teams %}
+                <li><a href="{%url 'show_teams' tournament.name %}?team={{team.name}}">{{ team.name }}</a></li>
+            {%endfor%}
+        </ul>
+
+        <hr class="my-6">
+
+        <a href="{% url 'home' tournament.name %}" class="rounded-full">Back</a>
+
+    </div>
+
+    <div class="col-span-3">
+        <h3>Squad</h3>
+        {%for player in players %}
+            <p>{{player.name}}</p>
+        {%endfor%}
+    </div>
+</div>
+
+{%endblock%}

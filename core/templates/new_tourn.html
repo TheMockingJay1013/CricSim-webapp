@@ -1,0 +1,23 @@
+{% extends 'base.html'%}
+
+{%block title %} Index {%endblock%}
+
+{%block content %}
+
+<div class="flex justify-center my-6 p-6">
+    <div class="w-2/5 bg-teal-100 rounded-lg mt-8">
+        <h1 class="mb-6 mt-5 text-4xl font-semibold text-center">New Tournament</h1>
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="mb-4 mt-3 w-4/5 mx-auto">
+                {{form.as_p}}
+            </div>
+            <div class="mt-5 w-3/5 mx-auto px-3 py-6">
+                <button type="submit"
+                    class="bg-blue-700 text-white px-4 py-3 rounded-xl font-medium w-full">Create</button>
+            </div>
+        </form>
+    </div>
+
+
+{%endblock %}

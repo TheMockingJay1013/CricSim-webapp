@@ -8,7 +8,7 @@
         <div class="mb-6 text-4xl font-semibold flex justify-center">Home</div>
 <br>
         <div class="grid grid-cols-2 gap-12 flex justify-center w-full text-center pl-40 pr-40">
-            <a href="#" class ="px-6 py-3 text-lg font-semibold bg-cyan-500 hover:bg-cyan-700 text-white rounded-xl">Show teams</a>
+            <a href="{% url 'show_teams' tournament.name %}" class ="px-6 py-3 text-lg font-semibold bg-cyan-500 hover:bg-cyan-700 text-white rounded-xl">Show teams</a>
             <a href="#" class ="px-6 py-3 text-lg font-semibold bg-cyan-500 hover:bg-cyan-700 text-white rounded-xl">Show Schedule</a>
             <a href="#" class ="px-6 py-3 text-lg font-semibold bg-cyan-500 hover:bg-cyan-700 text-white rounded-xl">Simulate Match</a>
             <a href="#" class ="px-6 py-3 text-lg font-semibold bg-cyan-500 hover:bg-cyan-700 text-white rounded-xl">Points Table</a>
@@ -20,7 +20,7 @@
         </div>
         <br><br>
         <div class="flex justify-center">
-        <a href ="#" class ="inline-block mt-4 indent-7 w-32 hover:indent-8 px-5 py-4 text-lg font-semibold bg-red-500 text-white hover:bg-red-700 rounded-xl">Exit    </a>
+        <a href ="/" class ="inline-block mt-4 indent-7 w-32 hover:indent-8 px-5 py-4 text-lg font-semibold bg-red-500 text-white hover:bg-red-700 rounded-xl">Exit    </a>
         </div>
         <br><br>
 

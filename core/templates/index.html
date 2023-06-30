@@ -4,6 +4,16 @@
 
 {%block content %}
 
+{% if request.user.is_authencated %}
+welcome {{request.user.username}}
+{% endif %}
+
+<div>
+<a href="{% url 'new_tourn'%}">Start New Tournament</a>
+</div>
+<div>
+<a href="{% url 'continue_tourn'%}">Continue Old Tournament</a>
+</div>
 
 
 {%endblock %}
