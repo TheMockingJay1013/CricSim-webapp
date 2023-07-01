@@ -36,5 +36,41 @@ class Player(models.Model) :
     overs=models.IntegerField(default=0)
     runs_conceded=models.IntegerField(default=0)
     
+class schedule_table(models.Model) :
+    tournament=models.ForeignKey(Tournament,related_name='schedule',on_delete=models.CASCADE)
+    date=models.DateField()
+    time=models.TimeField()
+    venue=models.CharField(max_length=100)
+    team1=models.CharField(max_length=100)
+    team2=models.CharField(max_length=100)
+    is_over=models.BooleanField(default=False)
+    
+class Match(models.Model) :
+    schedule=models.ForeignKey(schedule_table,related_name='match',on_delete=models.CASCADE)
+    team1_batters=models.CharField(max_length=1000)
+    team1_runs=models.CharField(max_length=1000)
+    team1_balls=models.CharField(max_length=1000)
+    team1_fours=models.CharField(max_length=1000)
+    team1_sixes=models.CharField(max_length=1000)
+    team1_strike_rates=models.CharField(max_length=1000)
+    team2_batters=models.CharField(max_length=1000)
+    team2_runs=models.CharField(max_length=1000)
+    team2_balls=models.CharField(max_length=1000)
+    team2_fours=models.CharField(max_length=1000)
+    team2_sixes=models.CharField(max_length=1000)
+    team2_strike_rates=models.CharField(max_length=1000)
+    team1_bowlers=models.CharField(max_length=1000)
+    team1_overs=models.CharField(max_length=1000)
+    team1_bowler_runs=models.CharField(max_length=1000)
+    team1_wickets=models.CharField(max_length=1000)
+    team1_economy=models.CharField(max_length=1000)
+    team2_bowlers=models.CharField(max_length=1000)
+    team2_overs=models.CharField(max_length=1000)
+    team2_bowler_runs=models.CharField(max_length=1000)
+    team2_wickets=models.CharField(max_length=1000)
+    team2_economy=models.CharField(max_length=1000)
+    
+    class Meta : 
+        verbose_name_plural='Matches'
     
     

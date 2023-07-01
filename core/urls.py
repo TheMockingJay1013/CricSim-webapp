@@ -13,4 +13,7 @@ urlpatterns = [
     path('new_tournament/',views.new_tourn,name='new_tourn'),
     path('continue_tournament/',views.continue_tourn,name='continue_tourn'),
     path('show_teams/<str:tournament>',views.show_teams,name='show_teams'),
+    path('show_schedule/<str:tournament>',views.show_schedule,name='show_schedule'),
+    path('show_points_table/<str:tournament>',views.show_points_table,name='show_points_table'),
+    path('simulate/<str:tournament>',views.simulate,name='simulate'),
 ]

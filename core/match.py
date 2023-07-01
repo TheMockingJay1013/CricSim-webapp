@@ -29,7 +29,7 @@ class match:
                     if(self.overs>0):
                         print((self.name)+":"+str(self.overs)+"-"+str(self.maidens)+"-"+str(self.runs)+"-"+str(self.wickets))
             def __init__(self,player):
-                self.name=player.first_name+" "+player.last_name
+                self.name=player.name
                 self.batstats=self.batting(self.name)
                 self.bowlstats=self.bowling(self.name)
                 

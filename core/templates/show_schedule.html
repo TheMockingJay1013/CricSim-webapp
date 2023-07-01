@@ -1,0 +1,82 @@
+{%extends 'base.html' %}
+
+{%block title %} Schedule {%endblock%}
+
+{%block content %}
+
+<link
+	href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp"
+	rel="stylesheet">
+<div class="flex items-center justify-center min-h-screen bg-gray-900">
+	<div class="col-span-12">
+		<div class="overflow-auto lg:overflow-visible ">
+			<table class="table text-gray-400 border-separate space-y-6 text-sm">
+				<thead class="bg-gray-800 text-teal-500">
+					<tr>
+						<th class="p-3 text-xl">Match No.</th>
+						<th class="p-3 text-center  text-xl ">teams</th>
+						<th class="p-3 text-center text-xl">Date</th>
+						<th class="p-3 text-center text-xl">Time</th>
+						<th class="p-3 text-center text-xl">Venue</th>
+					</tr>
+				</thead>
+				<tbody>
+                    {%for match in schedule%}
+					<tr class="bg-gray-800">
+						<td class="p-3">
+							<div class="flex align-items-center">
+								{{match.id}}
+							</div>
+						</td>
+						<td class="p-3 font-bold">
+							{{match.team1}} vs {{match.team2}}
+						</td>
+						<td class="p-3">
+							{{match.date}}
+						</td>
+						<td class="p-3">
+							{{match.time}}
+						</td>
+						<td class="p-3 ">
+							{{match.venue}}
+						</td>
+					</tr>
+                    {%endfor%}
+					
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+<div class="bg-gray-900">
+<div class=" w-2/3 mx-auto">
+<a href="{% url 'home' tournament.name %}" class="mt-5 py-4 px-8 inline-block bg-teal-500 text-lg rounded-xl text-white ">Back</a><br><br>
+</div></div>
+
+
+<style>
+	.table {
+		border-spacing: 0 15px;
+	}
+
+	i {
+		font-size: 1rem !important;
+	}
+
+	.table tr {
+		border-radius: 20px;
+	}
+
+	tr td:nth-child(n+5),
+	tr th:nth-child(n+5) {
+		border-radius: 0 .625rem .625rem 0;
+	}
+
+	tr td:nth-child(1),
+	tr th:nth-child(1) {
+		border-radius: .625rem 0 0 .625rem;
+	}
+</style>
+
+{%endblock%}

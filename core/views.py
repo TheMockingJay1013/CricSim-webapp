@@ -2,8 +2,28 @@ from django.shortcuts import render,redirect
 from .forms import SignupForm,NewTourn
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-from .models import Tournament,Team,Player
+from .models import Tournament,Team,Player,schedule_table,Match
 import random
+from .schedule import Schedule
+from .match import match
+from datetime import datetime,timedelta
+
+#classes
+class team:
+    def __init__(self, name):
+        self.name = name
+        self.players = []
+        self.captain = None
+class player2:
+    
+    def __init__(self, name, role):
+        self.name=name
+        self.role = role
+        self.runs_scored=0
+        self.balls_faced=0
+        self.wickets=0
+        self.overs=0
+        self.runs_conceded=0
 
 # Create your views here.
 
@@ -68,12 +88,50 @@ def new_tourn(request):
                     player.name=name[j]
                     player.tournament=tournament
                     player.team=team
-                    player.role=random.choice(['Batsman','Bowler','All Rounder','Wicket Keeper'])
+                    player.role=random.choice(['Batsman','Bowler','All-Rounder','Wicket-Keeper'])
                     player.save()
                 captain=random.choice(Player.objects.filter(team=team,tournament=tournament))
-                team=Team.objects.filter(id=id)
                 team.captain=captain.name
-                team.update()
+                team.save()
+                
+                
+            schedule=Schedule()
+            venues = ['M. A. Chidambaram Stadium, Chennai', 'Wankhede Stadium, Mumbai', 'Eden Gardens, Kolkata', 'Arun Jaitley Stadium, Delhi', 'M. Chinnaswamy Stadium, Bengaluru', 'Sawai Mansingh Stadium, Jaipur', 'Punjab Cricket Association Stadium, Mohali', 'Rajiv Gandhi International Cricket Stadium, Hyderabad']
+            for venue in venues:
+                schedule.add_venue(venue)
+            
+            teams=Team.objects.filter(tournament=tournament)
+            for team in teams:
+                schedule.add_team(team.name)
+            schedule.generate_schedule()
+            
+            date=datetime(2023,4,14)
+            match_count = len(schedule.teams) * (len(schedule.teams) - 1) // 2
+            for i in range(len(schedule.matches)):
+                if i>=match_count :
+                    break
+                home,away,venue,date_str,time_str=schedule.matches[i]
+                if i%2==0 :
+                    date=date+timedelta(days=1)
+                    if date.weekday()==5 or date.weekday()==6 :
+                        time = datetime.strptime(random.choice(['18:00', '22:00']), "%H:%M")
+                    else:
+                        time = datetime.strptime('22:00', "%H:%M")
+            
+                venue = random.choice(schedule.venues)
+                while (date.strftime("%d-%m-%Y"), venue) in [(x[3], x[2]) for x in schedule.matches if x]:
+                    venue = random.choice(schedule.venues)
+                
+                new_schedule=schedule_table()
+                new_schedule.tournament=tournament
+                new_schedule.date=date
+                new_schedule.time=time
+                new_schedule.venue=venue
+                new_schedule.team1=home
+                new_schedule.team2=away
+                new_schedule.save()
+                
+                
             return redirect('home',tournament=tournament.name)
     else :
         form=NewTourn()
@@ -99,3 +157,147 @@ def show_teams(request,tournament):
     return render(request,'show_teams.html',{"teams":teams,"players":players,"tournament":tournament})
     
     
+@login_required
+def show_schedule(request,tournament):
+    tournament=Tournament.objects.get(name=tournament,created_by=request.user)
+    schedule=schedule_table.objects.filter(tournament=tournament)
+    return render(request,'show_schedule.html',{"schedule":schedule,"tournament":tournament})
+
+@login_required
+def show_points_table(request,tournament):
+    tournament=Tournament.objects.get(name=tournament,created_by=request.user)
+    teams=Team.objects.filter(tournament=tournament)
+    return render(request,'show_points_table.html',{"teams":teams,"tournament":tournament})
+
+@login_required
+def simulate(request,tournament) :
+    tournament=Tournament.objects.get(name=tournament,created_by=request.user)
+    
+    if request.method == 'POST' :
+        matches_no=request.POST.get('matches',0)
+        matches_no=int(matches_no)
+        
+        schedule_list=schedule_table.objects.filter(tournament=tournament,is_over=False)[0:matches_no]
+        for schedule in schedule_list :
+            schedule.is_over=True
+            team1=Team.objects.get(name=schedule.team1,tournament=tournament)
+            team2=Team.objects.get(name=schedule.team2,tournament=tournament)
+            
+            t1=team(team1.name)
+            players=Player.objects.filter(team=team1,tournament=tournament)
+            for x in players :
+                t1.players.append(player2(x.name,x.role))
+            t1.captain=team1.captain
+            
+            t2=team(team2.name)
+            players=Player.objects.filter(team=team2,tournament=tournament)
+            for x in players :
+                t2.players.append(player2(x.name,x.role))
+            t2.captain=team2.captain
+            
+            m=match(t1,t2)
+            m.sim_match(t1,t2)
+            
+            match_data=Match()
+            match_data.schedule=schedule
+            
+            team1_batters=""
+            team1_runs=""
+            team1_balls=""
+            team1_fours=""
+            team1_sixes=""
+            team1_sr=""
+            team1_bowlers=""
+            team1_overs=""
+            team1_bowler_runs=""
+            team1_wickets=""
+            team1_economy=""
+            
+            for player in m.team1.players :
+                if int(player.batstats.balls_faced) > 0 :
+                    strike_rate=round(player.batstats.runs/player.batstats.balls_faced*100,2)
+                else :
+                    strike_rate=0
+                strike_rate=str(strike_rate)
+                team1_sr=team1_sr + "," + strike_rate
+                team1_batters=team1_batters + "," + player.name
+                team1_runs=team1_runs + "," + str(player.batstats.runs)
+                team1_balls=team1_balls + "," + str(player.batstats.balls_faced)
+                team1_fours=team1_fours + "," + str(player.batstats.num_fours)
+                team1_sixes=team1_sixes + "," + str(player.batstats.num_sixes)
+                
+                if int(player.bowlstats.overs)>0 :
+                    economy=round(player.bowlstats.runs/player.bowlstats.overs,2)
+                    economy=str(economy)
+                    team1_economy=team1_economy + "," + economy
+                    team1_bowlers=team1_bowlers + "," + player.name
+                    team1_overs=team1_overs + "," + str(player.bowlstats.overs)
+                    team1_bowler_runs=team1_bowler_runs + "," + str(player.bowlstats.runs)
+                    team1_wickets=team1_wickets + "," + str(player.bowlstats.wickets)
+            
+            match_data.team1_batters=team1_batters
+            match_data.team1_runs=team1_runs
+            match_data.team1_balls=team1_balls
+            match_data.team1_fours=team1_fours
+            match_data.team1_sixes=team1_sixes
+            match_data.team1_strike_rates=team1_sr
+            match_data.team1_bowlers=team1_bowlers
+            match_data.team1_overs=team1_overs
+            match_data.team1_bowler_runs=team1_bowler_runs
+            match_data.team1_wickets=team1_wickets
+            match_data.team1_economy=team1_economy
+            
+            
+            
+            team2_batters=""
+            team2_runs=""
+            team2_balls=""
+            team2_fours=""
+            team2_sixes=""
+            team2_sr=""
+            team2_bowlers=""
+            team2_overs=""
+            team2_bowler_runs=""
+            team2_wickets=""
+            team2_economy=""
+            
+            for player in m.team2.players :
+                if(player.batstats.balls_faced>0):
+                    strike_rate=round(player.batstats.runs/player.batstats.balls_faced*100,2)
+                else :
+                    strike_rate=0
+                strike_rate=str(strike_rate)
+                team2_sr=team2_sr + "," + strike_rate
+                team2_batters=team2_batters + "," + player.name
+                team2_runs=team2_runs + "," + str(player.batstats.runs)
+                team2_balls=team2_balls + "," + str(player.batstats.balls_faced)
+                team2_fours=team2_fours + "," + str(player.batstats.num_fours)
+                team2_sixes=team2_sixes + "," + str(player.batstats.num_sixes)
+                
+                if player.bowlstats.overs>0 :
+                    economy=round(player.bowlstats.runs/player.bowlstats.overs,2)
+                    economy=str(economy)
+                    team2_economy=team2_economy + "," + economy
+                    team2_bowlers=team2_bowlers + "," + player.name
+                    team2_overs=team2_overs + "," + str(player.bowlstats.overs)
+                    team2_bowler_runs=team2_bowler_runs + "," + str(player.bowlstats.runs)
+                    team2_wickets=team2_wickets + "," + str(player.bowlstats.wickets)
+            
+            match_data.team2_batters=team2_batters
+            match_data.team2_runs=team2_runs
+            match_data.team2_balls=team2_balls
+            match_data.team2_fours=team2_fours
+            match_data.team2_sixes=team2_sixes
+            match_data.team2_strike_rates=team2_sr
+            match_data.team2_bowlers=team2_bowlers
+            match_data.team2_overs=team2_overs
+            match_data.team2_bowler_runs=team2_bowler_runs
+            match_data.team2_wickets=team2_wickets
+            match_data.team2_economy=team2_economy
+            
+            match_data.save()
+        
+        return redirect('home',tournament=tournament.name)
+        
+            
+    return render(request,'simulate.html',{"tournament":tournament})

@@ -1,0 +1,11 @@
+{% extends 'base.html'%}
+{% block title %}Simulate match {% endblock %}
+{% block content %}
+
+<form method='post' action="{% url 'simulate' tournament.name %}">
+    {% csrf_token %}
+    <input type="number" name="matches" placeholder="Enter number of matches">
+    
+    <button type="submit">Submit</button>
+</form>
+{%endblock%}

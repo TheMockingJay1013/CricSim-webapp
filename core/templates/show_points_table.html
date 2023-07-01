@@ -1,0 +1,103 @@
+{%extends 'base.html'%}
+
+{%block title%}Points Table {%endblock%}
+
+{%block content%}
+
+<div class="flex flex-col items-center justify-center w-screen min-h-screen bg-gray-900 py-10">
+
+	<!-- Component Start -->
+	<h1 class="text-lg text-gray-400 font-medium">2022-23 Season</h1>
+	<div class="flex flex-col mt-6">
+		<div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+			<div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+				<div class="shadow overflow-hidden sm:rounded-lg">
+					<table class="min-w-full text-sm text-gray-400">
+						<thead class="bg-gray-800 text-xs uppercase font-medium">
+							<tr>
+								<th></th>
+								<th scope="col" class="px-6 py-3 text-left tracking-wider">
+									Club
+								</th>
+								<th scope="col" class="px-6 py-3 text-left tracking-wider">
+									MP
+								</th>
+								<th scope="col" class="px-6 py-3 text-left tracking-wider">
+									W
+								</th>
+								<th scope="col" class="px-6 py-3 text-left tracking-wider">
+									D
+								</th>
+								<th scope="col" class="px-6 py-3 text-left tracking-wider">
+									L
+								</th>
+								<th scope="col" class="px-6 py-3 text-left tracking-wider">
+									Pts
+								</th>
+								<th scope="col" class="px-6 py-3 text-left tracking-wider">
+									Last 5
+								</th>	
+							</tr>
+						</thead>
+						<tbody class="bg-gray-800">
+                            
+							{%for team in teams%}
+                                <tr class="bg-black bg-opacity-20">
+                                    <td class="pl-4">
+                                        {{forloop.counter}}
+                                    </td>
+                                    <td class="flex px-6 py-4 whitespace-nowrap">
+                                        <span class="ml-2 font-medium">{{team.name}}</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {{team.played}}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {{team.won}}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {{team.draw}}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {{team.lost}}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {{team.points}}
+                                    </td>
+                                    <td class="flex px-6 py-4 whitespace-nowrap">
+                                        <svg class="w-4 fill-current text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                        </svg>
+                                        <svg class="w-4 fill-current text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                        </svg>
+                                        <svg class="w-4 fill-current text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                        </svg>
+                                        <svg class="w-4 fill-current text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+                                        </svg>
+                                        <svg class="w-4 fill-current text-green-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                        </svg>
+                                    </td>
+                                </tr>
+
+                            {%endfor%}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Component End  -->
+
+</div>
+<div class="bg-gray-900">
+    <div class=" w-2/3 mx-auto">
+    <a href="{% url 'home' tournament.name %}" class="mt-5 py-4 px-8 inline-block bg-teal-500 text-lg rounded-xl text-white ">Back</a><br><br>
+    </div></div>
+
+{%endblock%}
+
