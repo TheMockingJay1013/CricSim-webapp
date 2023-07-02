@@ -16,4 +16,5 @@ urlpatterns = [
     path('show_schedule/<str:tournament>',views.show_schedule,name='show_schedule'),
     path('show_points_table/<str:tournament>',views.show_points_table,name='show_points_table'),
     path('simulate/<str:tournament>',views.simulate,name='simulate'),
+    path('scorecard/<str:tournament>',views.scorecard,name='scorecard'),
 ]

@@ -22,7 +22,7 @@ class Team(models.Model) :
     draw=models.IntegerField(default=0)
     lost=models.IntegerField(default=0)
     points=models.IntegerField(default=0)
-    last_5_matches=models.CharField(max_length=100,default='')
+    last_5_matches=models.CharField(max_length=5,default='')
         
     
 class Player(models.Model) : 
@@ -32,6 +32,8 @@ class Player(models.Model) :
     role=models.CharField(max_length=100)
     runs_scored=models.IntegerField(default=0)
     balls_faced=models.IntegerField(default=0)
+    no_fours=models.IntegerField(default=0)
+    no_sixes=models.IntegerField(default=0)
     wickets=models.IntegerField(default=0)
     overs=models.IntegerField(default=0)
     runs_conceded=models.IntegerField(default=0)
@@ -69,6 +71,13 @@ class Match(models.Model) :
     team2_bowler_runs=models.CharField(max_length=1000)
     team2_wickets=models.CharField(max_length=1000)
     team2_economy=models.CharField(max_length=1000)
+    team1_total_runs=models.IntegerField(default=0)
+    team2_total_runs=models.IntegerField(default=0)
+    team1_total_wickets=models.IntegerField(default=0)
+    team2_total_wickets=models.IntegerField(default=0)
+    team1_total_overs=models.DecimalField(default=0.0,decimal_places=1,max_digits=3)
+    team2_total_overs=models.DecimalField(default=0.0,decimal_places=1,max_digits=3)
+    
     
     class Meta : 
         verbose_name_plural='Matches'

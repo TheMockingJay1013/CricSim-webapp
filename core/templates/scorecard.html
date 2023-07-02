@@ -1,0 +1,334 @@
+{%extends 'base.html'%}
+
+{%block title %}Scorecard{% endblock %}
+
+
+{% block content %}
+{% load mathfilters %}
+    <style>
+        div.scroll{
+            float: left;
+            width: 400px;
+            overflow: auto;
+            height: 500px;
+        }
+    </style>
+    <div class="grid grid-cols-4 gap-4 text-white">
+        <div class="col-span-1 px-4 py-4 scroll">
+            <p class="font-semibold">Matches</p>
+            <ul>
+                {% for match in schedules %}
+                    <li><a href="{%url 'scorecard' tournament.name%}?match_id={{match.id}}">{{ match.team1}} vs {{ match.team2}}</a></li>
+                {%endfor%}
+            </ul>
+            <hr class="my-6">
+
+            <a href="{% url 'home' tournament.name %}" class="rounded-full">Back</a>
+
+        </div>
+        {%if selected_match%}
+        <div class="col-span-3 px-4 py-4 text-center w-11/12 mx-auto">
+            <h2>Scorecard</h2>
+            <div class="bg-gray-900 shadow rounded-lg">
+                <br>
+                <div class="grid grid-cols-2 gap-3 text-teal-500  w-11/12 mx-auto">
+                    <div class="w-11/12 mx-auto  rounded-lg text-center bg-gray-800 p-2">{{schedule.team1}}<br>{{match.team1_total_runs}}/{{match.team2_total_wickets}} <br>({{match.team1_total_overs}})</div>
+                    <div class="w-11/12  rounded-lg text-center bg-gray-800 p-2">{{schedule.team2}}<br>{{match.team2_total_runs}}/{{match.team1_total_wickets}}<br>({{match.team2_total_overs}})</div>
+                </div>
+                <br>
+                {% if match.team1_total_runs > match.team2_total_runs %}
+                    {{schedule.team1}} won by {{match.team1_total_runs|sub:match.team2_total_runs}} runs 
+                {%elif match.team2_total_runs > match.team1_total_runs%}
+                    {% with wickets=10 %}
+                    {{schedule.team2}} won by  {{wickets|sub:match.team1_total_wickets}} wickets
+                    {%endwith%}
+                {%else%}
+                    Match drawn
+                {%endif%}
+                <br><br>
+            </div>
+
+            <div class="grid grid-cols-2 mt-4">
+                <div>
+                    <button id="team1_btn" class="bg-teal-500 text-white px-4 py-3 rounded-xl font-medium w-3/5 mx-auto hover:bg-teal-700">{{schedule.team1}} batting</button>
+                </div>
+                <div>
+                    <button id="team2_btn" class="bg-teal-500 text-white px-4 py-3 rounded-xl font-medium w-3/5 hover:bg-teal-700">{{schedule.team2}} batting</button>
+                </div>
+            </div>
+
+                <br>
+            <div width:95% class="bg-gray-900 rounded-lg py-4" id="team1">
+                {{schedule.team1}} batting <br>
+                <link
+                    href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp"
+                    rel="stylesheet">
+                <div class="flex items-center justify-center  bg-gray-900">
+                    <div class="col-span-7">
+                        <div class="overflow-auto lg:overflow-visible ">
+                            <table class="table text-gray-400 border-separate  text-sm">
+                                <thead class="bg-gray-800 text-teal-500">
+                                    <tr>
+                                        <th class="p-3 text-xl">Sno.</th>
+                                        <th class="p-3 text-center  text-xl ">Batter</th>
+                                        <th class="p-3 text-center text-xl">Runs</th>
+                                        <th class="p-3 text-center text-xl">Balls</th>
+                                        <th class="p-3 text-center text-xl">Fours</th>
+                                        <th class="p-3 text-center text-xl">Sixes</th>
+                                        <th class="p-3 text-center text-xl">Strike rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {%for batter,runs,balls,fours,sixes,strike_rate in team1_batting%}
+                                    <tr class="bg-gray-800">
+                                        <td class="p-3">
+                                            <div class="flex align-items-center">
+                                                {{forloop.counter}}
+                                            </div>
+                                        </td>
+                                        <td class="p-3 font-bold">
+                                            {{batter}}
+                                        </td>
+                                        <td class="p-3">
+                                            {{runs}}
+                                        </td>
+                                        <td class="p-3">
+                                            {{balls}}
+                                        </td>
+                                        <td class="p-3 ">
+                                            {{fours}}
+                                        </td>
+                                        <td class="p-3 ">
+                                            {{sixes}}
+                                        </td>
+                                        <td class="p-3 ">
+                                            {{strike_rate}}
+                                        </td>
+                                    </tr>
+                                    {%endfor%}
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <br><br><br>
+                {{schedule.team2}}'s Bowling
+                <link
+                    href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp"
+                    rel="stylesheet">
+                <div class="flex items-center justify-center  bg-gray-900">
+                    <div class="col-span-7">
+                        <div class="overflow-auto lg:overflow-visible ">
+                            <table class="table text-gray-400 border-separate  text-sm">
+                                <thead class="bg-gray-800 text-teal-500">
+                                    <tr>
+                                        <th class="p-3 text-xl">Sno.</th>
+                                        <th class="p-3 text-center  text-xl ">Bowler</th>
+                                        <th class="p-3 text-center text-xl">Overs</th>
+                                        <th class="p-3 text-center text-xl">Runs</th>
+                                        <th class="p-3 text-center text-xl">Wickets</th>
+                                        <th class="p-3 text-center text-xl">Economy</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {%for bowler,overs,wickets,runs_conceded,economy in team2_bowling%}
+                                    <tr class="bg-gray-800">
+                                        <td class="p-3">
+                                            <div class="flex align-items-center">
+                                                {{forloop.counter}}
+                                            </div>
+                                        </td>
+                                        <td class="p-3 font-bold">
+                                            {{bowler}}
+                                        </td>
+                                        <td class="p-3">
+                                            {{overs}}
+                                        </td>
+                                        <td class="p-3">
+                                            {{runs_conceded}}
+                                        </td>
+                                        <td class="p-3 ">
+                                            {{wickets}}
+                                        </td>
+                                        <td class="p-3 ">
+                                            {{economy}}
+                                        </td>
+                                    </tr>
+                                    {%endfor%}
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div width:95% class="bg-gray-900 rounded-lg py-4" id="team2">
+                {{schedule.team2}} batting <br>
+                <link
+                    href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp"
+                    rel="stylesheet">
+                <div class="flex items-center justify-center  bg-gray-900">
+                    <div class="col-span-7">
+                        <div class="overflow-auto lg:overflow-visible ">
+                            <table class="table text-gray-400 border-separate  text-sm">
+                                <thead class="bg-gray-800 text-teal-500">
+                                    <tr>
+                                        <th class="p-3 text-xl">Sno.</th>
+                                        <th class="p-3 text-center  text-xl ">Batter</th>
+                                        <th class="p-3 text-center text-xl">Runs</th>
+                                        <th class="p-3 text-center text-xl">Balls</th>
+                                        <th class="p-3 text-center text-xl">Fours</th>
+                                        <th class="p-3 text-center text-xl">Sixes</th>
+                                        <th class="p-3 text-center text-xl">Strike rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {%for batter,runs,balls,fours,sixes,strike_rate in team2_batting%}
+                                    <tr class="bg-gray-800">
+                                        <td class="p-3">
+                                            <div class="flex align-items-center">
+                                                {{forloop.counter}}
+                                            </div>
+                                        </td>
+                                        <td class="p-3 font-bold">
+                                            {{batter}}
+                                        </td>
+                                        <td class="p-3">
+                                            {{runs}}
+                                        </td>
+                                        <td class="p-3">
+                                            {{balls}}
+                                        </td>
+                                        <td class="p-3 ">
+                                            {{fours}}
+                                        </td>
+                                        <td class="p-3 ">
+                                            {{sixes}}
+                                        </td>
+                                        <td class="p-3 ">
+                                            {{strike_rate}}
+                                        </td>
+                                    </tr>
+                                    {%endfor%}
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <br><br><br>
+                {{schedule.team1}}'s Bowling
+                <link
+                    href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp"
+                    rel="stylesheet">
+                <div class="flex items-center justify-center  bg-gray-900">
+                    <div class="col-span-7">
+                        <div class="overflow-auto lg:overflow-visible ">
+                            <table class="table text-gray-400 border-separate  text-sm">
+                                <thead class="bg-gray-800 text-teal-500">
+                                    <tr>
+                                        <th class="p-3 text-xl">Sno.</th>
+                                        <th class="p-3 text-center  text-xl ">Bowler</th>
+                                        <th class="p-3 text-center text-xl">Overs</th>
+                                        <th class="p-3 text-center text-xl">Runs</th>
+                                        <th class="p-3 text-center text-xl">Wickets</th>
+                                        <th class="p-3 text-center text-xl">Economy</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {%for bowler,overs,wickets,runs_conceded,economy in team1_bowling%}
+                                    <tr class="bg-gray-800">
+                                        <td class="p-3">
+                                            <div class="flex align-items-center">
+                                                {{forloop.counter}}
+                                            </div>
+                                        </td>
+                                        <td class="p-3 font-bold">
+                                            {{bowler}}
+                                        </td>
+                                        <td class="p-3">
+                                            {{overs}}
+                                        </td>
+                                        <td class="p-3">
+                                            {{runs_conceded}}
+                                        </td>
+                                        <td class="p-3 ">
+                                            {{wickets}}
+                                        </td>
+                                        <td class="p-3 ">
+                                            {{economy}}
+                                        </td>
+                                    </tr>
+                                    {%endfor%}
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+        </div>
+        {%endif%}
+    </div>
+
+    <style>
+        .table {
+            border-spacing: 0 15px;
+        }
+    
+        i {
+            font-size: 1rem !important;
+        }
+    
+        .table tr {
+            border-radius: 20px;
+        }
+    
+        tr td:nth-child(n+5),
+        tr th:nth-child(n+5) {
+            border-radius: 0 .625rem .625rem 0;
+        }
+    
+        tr td:nth-child(1),
+        tr th:nth-child(1) {
+            border-radius: .625rem 0 0 .625rem;
+        }
+    </style>
+
+    <script>
+        const team1_batting=document.getElementById("team1");
+        const team2_batting=document.getElementById("team2");
+        const btn1 = document.getElementById("team1_btn");
+        const btn2 = document.getElementById("team2_btn");
+
+        team1_batting.style.display="none"
+        team2_batting.style.display="none"
+
+        btn1.onclick = function() {
+            if (team1_batting.style.display =="none"){
+                team1_batting.style.display ="block"
+                team2_batting.style.display="none"
+            }else{
+                team1_batting.style.display ="block"
+                team2_batting.style.display="none"
+            }
+        }
+        btn2.onclick = function() {
+            if (team2_batting.style.display =="none"){
+                team2_batting.style.display ="block"
+                team1_batting.style.display="none"
+            }else{
+                team2_batting.style.display ="block"
+                team1_batting.style.display="none"
+            }
+        }
+
+
+    </script>
+{%endblock%}
