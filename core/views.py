@@ -428,3 +428,22 @@ def scorecard(request,tournament) :
         team2_batting_stat=[]
         team2_bowling_stat=[]
     return render(request,'scorecard.html',{"selected_match":selected_match,"tournament":tournament,"schedules":schedules,"match":match,"schedule":schedule_match,"team1_batting":team1_batting_stat,"team1_bowling":team1_bowling_stat,"team2_batting":team2_batting_stat,"team2_bowling":team2_bowling_stat})
+
+@login_required
+def team_stat(request,tournament):
+    tournament=Tournament.objects.get(name=tournament)
+    teams=Team.objects.filter(tournament=tournament)
+    team_id=request.GET.get('team_id',None)
+    
+    if team_id :
+        team=Team.objects.get(id=team_id)
+        top_scorer=Player.objects.filter(team=team).order_by('-runs_scored')[0]
+        top_wickettaker=Player.objects.filter(team=team).order_by('-wickets')[0]
+    else :
+        team=None
+        top_scorer=None
+        top_wickettaker=None
+        
+        
+    
+    return render(request,'team_stats.html',{"tournament":tournament,"teams":teams,"team":team,"top_scorer":top_scorer,"top_wickettaker":top_wickettaker,"team_id":team_id})

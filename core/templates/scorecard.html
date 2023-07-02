@@ -7,27 +7,38 @@
 {% load mathfilters %}
     <style>
         div.scroll{
-            float: left;
-            width: 400px;
+            width: 500px;
             overflow: auto;
-            height: 500px;
+            direction: rtl;
+
         }
+        .scrolling-element-inside {
+            direction: ltr;
+          }
     </style>
     <div class="grid grid-cols-4 gap-4 text-white">
         <div class="col-span-1 px-4 py-4 scroll">
-            <p class="font-semibold">Matches</p>
-            <ul>
-                {% for match in schedules %}
-                    <li><a href="{%url 'scorecard' tournament.name%}?match_id={{match.id}}">{{ match.team1}} vs {{ match.team2}}</a></li>
-                {%endfor%}
-            </ul>
-            <hr class="my-6">
+            <div class="scrolling-element-inside">
+                <div>
+                    <div class="mx-auto">
+                    <a href="{% url 'home' tournament.name %}" class="mt-5 py-2 px-5 inline-block bg-teal-500 text-lg rounded-xl text-white ">Back</a><br><br>
+                    </div></div>
+                <p class="font-semibold text-xl text-gray-400">Matches</p>
+                <ul>
+                    {% for match in schedules %}
+                        <li class="py-1"><a href="{%url 'scorecard' tournament.name%}?match_id={{match.id}}" class="text-pink-200 rounded-xl p-3 {% if selected_match == match.id %} bg-teal-700 {%else%}hover:bg-teal-700 {%endif%}">{{forloop.counter}}){{ match.team1}} vs {{ match.team2}}</a></li>
+                    {%endfor%}
+                </ul>
+                <hr class="my-6">
 
-            <a href="{% url 'home' tournament.name %}" class="rounded-full">Back</a>
-
+                <div>
+                    <div class="mx-auto">
+                    <a href="{% url 'home' tournament.name %}" class="mt-5 py-2 px-5 inline-block bg-teal-500 text-lg rounded-xl text-white ">Back</a><br><br>
+                    </div></div>
+            </div>
         </div>
         {%if selected_match%}
-        <div class="col-span-3 px-4 py-4 text-center w-11/12 mx-auto">
+        <div class="col-span-3 px-4 py-4 text-center w-10/12 mx-auto">
             <h2>Scorecard</h2>
             <div class="bg-gray-900 shadow rounded-lg">
                 <br>
@@ -58,7 +69,7 @@
             </div>
 
                 <br>
-            <div width:95% class="bg-gray-900 rounded-lg py-4" id="team1">
+            <div class="bg-gray-900 rounded-lg py-4 w-11/12 mx-auto" id="team1">
                 {{schedule.team1}} batting <br>
                 <link
                     href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp"
@@ -165,7 +176,7 @@
 
             </div>
 
-            <div width:95% class="bg-gray-900 rounded-lg py-4" id="team2">
+            <div class="bg-gray-900 rounded-lg py-4 w-11/12 mx-auto"  id="team2">
                 {{schedule.team2}} batting <br>
                 <link
                     href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp"

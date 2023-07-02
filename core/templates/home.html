@@ -13,7 +13,7 @@
             <a href="{% url 'simulate' tournament.name %}" class ="px-6 py-3 text-lg font-semibold bg-teal-500 hover:bg-teal-700 text-white rounded-xl">Simulate Match</a>
             <a href="{% url 'show_points_table' tournament.name %}" class ="px-6 py-3 text-lg font-semibold bg-teal-500 hover:bg-teal-700 text-white rounded-xl">Points Table</a>
             <a href="{% url 'scorecard' tournament.name %}" class ="px-6 py-3 text-lg font-semibold bg-teal-500 hover:bg-teal-700 text-white rounded-xl">Match Scorecard</a>
-            <a href="#" class ="px-6 py-3 text-lg font-semibold bg-teal-500 hover:bg-teal-700 text-white rounded-xl">Team Stats</a>
+            <a href="{% url 'team_stats' tournament.name %}" class ="px-6 py-3 text-lg font-semibold bg-teal-500 hover:bg-teal-700 text-white rounded-xl">Team Stats</a>
             <a href="#" class ="px-6 py-3 text-lg font-semibold bg-teal-500 hover:bg-teal-700 text-white rounded-xl">Tournament Stats</a>
             <a href="#" class ="px-6 py-3 text-lg font-semibold bg-teal-500 hover:bg-teal-700 text-white rounded-xl">Player Stats</a>
             
