@@ -1,0 +1,29 @@
+{%extends 'base.html'%}
+{%block title %} Tournament Stats {%endblock%}
+{%block content %}
+
+<div class="grid grid-cols-2 gap-5 w-3/5 mx-auto text-2xl p-3 mt-20">
+    <div class="bg-gray-900 text-center text-gray-400 p-4 rounded-xl">
+        Top runscorers <br><br>
+        <div class="text-left text-xl">
+            {%for player in top_scorers%}
+                <p class="p-3">{{forloop.counter}}) {{player.name}} - {{player.runs_scored}}</p>
+            {%endfor%}
+        </div>
+    </div>
+    <div class="bg-gray-900 text-center text-gray-400 p-4 rounded-xl">
+        Top Wickettakers <br><br>
+        <div class="text-left text-xl">
+            {%for player in top_wickettakers%}
+                <p class="p-3">{{forloop.counter}}) {{player.name}} - {{player.wickets}}</p>
+            {%endfor%}
+        </div>
+    </div>
+</div>
+<br><br>
+<div class="bg-gray-800">
+	<div class=" w-2/3 mx-auto">
+	<a href="{% url 'home' tournament.name %}" class="mt-5 py-4 px-8 inline-block bg-teal-500 text-lg rounded-xl text-white ">Back</a><br><br>
+	</div></div>
+
+{%endblock%}

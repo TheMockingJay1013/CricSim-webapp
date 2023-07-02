@@ -5,30 +5,44 @@
 {%block content %}
 
 <div class="pb-6 grid grid-cols-4 gap-4 text-white">
-    <div class="col-span-1 px-4 py-4">
+    <div class="col-span-2 px-4 py-4 mx-auto">
+        <div>
+            <div class="mx-auto">
+            <a href="{% url 'home' tournament.name %}" class="mt-5 py-2 px-5 inline-block bg-teal-500 text-lg rounded-xl text-white ">Back</a><br><br>
+            </div></div>
         <hr class="my-6">
-        <p class="font-semibold">Teams</p>
+        <p class="font-semibold text-xl text-gray-400">Teams</p>
 
         <ul>
             {% for team in teams %}
-                <li><a href="{%url 'show_teams' tournament.name %}?team={{team.name}}">{{ team.name }}</a></li>
+                <li class="py-1"><a href="{%url 'show_teams' tournament.name %}?team_id={{team.id}}" class="text-pink-200 rounded-xl p-3 {% if team_id == team.id %} bg-teal-700 {%else%}hover:bg-teal-700 {%endif%}">{{forloop.counter}}){{team.name}}</a></li>
             {%endfor%}
         </ul>
 
         <hr class="my-6">
 
-        <a href="{% url 'home' tournament.name %}" class="rounded-full">Back</a>
+        <div>
+            <div class="mx-auto">
+            <a href="{% url 'home' tournament.name %}" class="mt-5 py-2 px-5 inline-block bg-teal-500 text-lg rounded-xl text-white ">Back</a><br><br>
+            </div></div>
 
     </div>
-
-    <div class="col-span-3">
-        <h3>Squad</h3>
-        {%for player in players %}
-            <p>{{player.name}}
-                {%if player.name == player.team.captain%}(c){%endif%}
-            </p>
-        {%endfor%}
+    {% if team_id %}
+    <div class="col-span-2 px-4 py-4 text-center w-3/5 mx-auto">
+        <div class="bg-gray-900 mt-10 p-3 rounded-xl text-2xl">
+            Squad
+            <div class="text-left p-5 text-xl">
+                {%for player in players %}
+                    {{player.name}}
+                        {%if player.name == player.team.captain%}(c){%endif%} <br>
+                    
+                {%endfor%}     
+            </div>
+               
+        </div>
+        
     </div>
+    {%endif%}
 </div>
 
 {%endblock%}

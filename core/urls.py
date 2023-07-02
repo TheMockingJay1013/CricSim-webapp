@@ -18,4 +18,6 @@ urlpatterns = [
     path('simulate/<str:tournament>',views.simulate,name='simulate'),
     path('scorecard/<str:tournament>',views.scorecard,name='scorecard'),
     path("team_stats/<str:tournament>",views.team_stat,name="team_stats"),
+    path("tournament_stats/<str:tournament>",views.tournament_stat,name="tournament_stats"),
+    path("player_stats/<str:tournament>",views.player_stats,name="player_stats"),
 ]

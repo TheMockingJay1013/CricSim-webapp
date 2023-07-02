@@ -2,10 +2,44 @@
 {% block title %}Simulate match {% endblock %}
 {% block content %}
 
-<form method='post' action="{% url 'simulate' tournament.name %}">
-    {% csrf_token %}
-    <input type="number" name="matches" placeholder="Enter number of matches">
+<div class="flex justify-center my-6 p-6">
+    <div class="w-2/5 bg-gray-900 rounded-lg mt-8 text-gray-400 text-center">
+        <br><br>
+        You have simulated {{matches_completed}} matches <br>You can simulate {{matches_remaining}} more matches <br> <br>
+        {% if matches_remaining != 0%}
+        <form method='post' action="{% url 'simulate' tournament.name %}">
+            {% csrf_token %}
+        <div class="mb-4 mt-3 w-4/5 mx-auto">
+            <div>
+                <input class="inline-block mb-2 text-xl border-2 border-blue-500 rounded-lg w-full bg-gray-100 text-gray-400 text-center" type="number" name="matches" placeholder="Enter number of matches to be simulated">
+            </div>
+        </div>
+
+        {% if error %}
+        <div class="text-red-500 mt-2 text-sm text-center">
+            {{ error }}
+        </div>
+        {% endif %}
+        
+        <div class="mt-5 w-3/5 mx-auto px-3 py-6">
+            <button type="submit"
+                class="bg-blue-700 text-white px-4 py-3 rounded-xl font-medium w-full">Submit</button>
+        </div>
+    </form> 
+    {% else %}
+        {% if error %}
+            <div class="text-red-500 mt-2 text-sm text-center">
+                {{ error }}
+            </div> <br>
+        {% endif %}
+    {% endif %} 
     
-    <button type="submit">Submit</button>
-</form>
+    <div>
+        <div class="mx-auto">
+        <a href="{% url 'home' tournament.name %}" class="mt-5 py-2 px-5 inline-block bg-teal-500 text-lg rounded-xl text-white ">Back</a><br><br>
+        </div></div>
+    </div>
+</div>
+
+
 {%endblock%}

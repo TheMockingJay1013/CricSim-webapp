@@ -4,16 +4,25 @@
 
 {%block content %}
 
-{% if request.user.is_authencated %}
-welcome {{request.user.username}}
+<br><br>
+{% if request.user.is_authenticated %}
+<div class="text-5xl text-center mt-10 text-gray-400">
+Welcome {{request.user.username}}!
+</div>
 {% endif %}
+<br><br><br><br><br>
+<div class="grid grid-cols-2 mt-4 w-1/2 mx-auto text-2xl p-3">
+    <div class=" mx-auto">
+        <a href="{% url 'new_tourn'%}" class="bg-teal-500 text-white px-4 py-3 rounded-xl font-medium w-3/5 mx-auto hover:bg-teal-700">Start New Tournament</a>
+    </div>
+    <div class=" mx-auto">
+        <a href="{% url 'continue_tourn'%}" class="bg-teal-500 text-white px-4 py-3 rounded-xl font-medium w-3/5 hover:bg-teal-700">Continue Old Tournament</a>
+    </div>
+</div>
 
-<div>
-<a href="{% url 'new_tourn'%}">Start New Tournament</a>
-</div>
-<div>
-<a href="{% url 'continue_tourn'%}">Continue Old Tournament</a>
-</div>
+<br><br><br><br><br><br>
+
+
 
 
 {%endblock %}

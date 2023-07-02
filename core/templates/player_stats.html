@@ -1,0 +1,65 @@
+{%extends 'base.html'%}
+{%block title %} Player Stats {%endblock%}
+{%block content %}
+
+<div class="grid grid-cols-4 gap-4 text-white">
+    <div class="col-span-1 px-4 py-4 scroll">
+        <div class="scrolling-element-inside">
+            <div>
+                <div class="mx-auto">
+                <a href="{% url 'home' tournament.name %}" class="mt-5 py-2 px-5 inline-block bg-teal-500 text-lg rounded-xl text-white ">Back</a><br><br>
+                </div></div>
+            <p class="font-semibold text-xl text-gray-400">Teams</p>
+            <ul>
+                {% for team in teams %}
+                    <li class="py-1"><a href="{%url 'player_stats' tournament.name%}?team_id={{team.id}}" class="text-pink-200 rounded-xl p-3 {% if team_id == team.id %} bg-teal-700 {%else%}hover:bg-teal-700 {%endif%}">{{forloop.counter}}){{team.name}}</a></li>
+                {%endfor%}
+            </ul>
+            <hr class="my-6">
+
+            <div>
+                <div class="mx-auto">
+                <a href="{% url 'home' tournament.name %}" class="mt-5 py-2 px-5 inline-block bg-teal-500 text-lg rounded-xl text-white ">Back</a><br><br>
+                </div></div>
+        </div>
+    </div>
+    {% if team_id %}
+    <div class="col-span-1 px-4 py-4 scroll">
+        <div class="scrolling-element-inside mt-4">
+            <br>
+            <hr class="my-6">
+            <p class="font-semibold text-xl text-gray-400">{{team.name}}</p>
+            <ul>
+                {% for player in players %}
+                    <li class="py-1"><a href="{%url 'player_stats' tournament.name%}?team_id={{team.id}}&player_id={{player.id}}" class="text-pink-200 rounded-xl p-3 {% if team_id == team.id %} bg-teal-700 {%else%}hover:bg-teal-700 {%endif%}">{{forloop.counter}}){{player.name}}</a></li>
+                {%endfor%}
+            </ul>
+            <hr class="my-6">
+        </div>
+    </div>
+    {%endif%}
+    {% if player_id %}
+    <div class="col-span-2 mx-auto w-1/2"><br><br>
+        <div class="bg-gray-900 text-center text-gray-400 p-4 rounded-xl mt-10 text-2xl">
+            {{player.name}} <br><br>
+            <div class="text-left text-xl">
+                <p class="text-center p">({{player.role}})</p>
+
+                Matches Played : {{player.team.played}} <br>
+                Runs Scored : {{player.runs_scored}} <br>
+                Balls Faced : {{player.balls_faced}} <br>
+                No of 4s : {{player.no_fours}} <br>
+                No of 6s : {{player.no_sixes}} <br>
+                Wickets taken : {{player.wickets}} <br>
+                Overs Bowled : {{player.overs}} <br>
+                Runs Conceded : {{player.runs_conceded}} <br>
+
+            </div>
+        </div>
+    </div>
+
+    {%endif%}
+
+</div
+
+{%endblock%}

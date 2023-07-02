@@ -146,15 +146,16 @@ def continue_tourn(request):
 def show_teams(request,tournament):
     tournament=Tournament.objects.get(name=tournament,created_by=request.user)
     teams=Team.objects.filter(tournament=tournament)
-    team=request.GET.get('team','')
+    team_id=request.GET.get('team_id',None)
     
     
-    if team!='':
-        team=Team.objects.get(name=team,tournament=tournament)
+    if team_id:
+        team=Team.objects.get(id=team_id,tournament=tournament)
         players=Player.objects.filter(team=team,tournament=tournament)
     else :
+        team=None
         players=[]
-    return render(request,'show_teams.html',{"teams":teams,"players":players,"tournament":tournament})
+    return render(request,'show_teams.html',{"teams":teams,"players":players,"tournament":tournament,"team_id":team_id})
     
     
 @login_required
@@ -173,216 +174,230 @@ def show_points_table(request,tournament):
 @login_required
 def simulate(request,tournament) :
     tournament=Tournament.objects.get(name=tournament,created_by=request.user)
-    
+    total_matches=tournament.no_of_teams*(tournament.no_of_teams-1)//2
     if request.method == 'POST' :
-        matches_no=request.POST.get('matches',0)
+        matches_no=request.POST.get('matches',"0")
         matches_no=int(matches_no)
         
         schedule_list=schedule_table.objects.filter(tournament=tournament,is_over=False)[0:matches_no]
-        for schedule in schedule_list :
-            schedule.is_over=True
-            schedule.save()
-            team1=Team.objects.get(name=schedule.team1,tournament=tournament)
-            team2=Team.objects.get(name=schedule.team2,tournament=tournament)
-            team1.played+=1
-            team2.played+=1
-            
-            t1=team(team1.name)
-            players=Player.objects.filter(team=team1,tournament=tournament)
-            for x in players :
-                t1.players.append(player2(x.name,x.role))
-            t1.captain=team1.captain
-            
-            t2=team(team2.name)
-            players=Player.objects.filter(team=team2,tournament=tournament)
-            for x in players :
-                t2.players.append(player2(x.name,x.role))
-            t2.captain=team2.captain
-            
-            m=match(t1,t2)
-            m.sim_match(t1,t2)
-            
-            match_data=Match()
-            match_data.schedule=schedule
-            
-            #Updating the scorecard (match record)
-            team1_batters=""
-            team1_runs=""
-            team1_balls=""
-            team1_fours=""
-            team1_sixes=""
-            team1_sr=""
-            team1_bowlers=""
-            team1_overs=""
-            team1_bowler_runs=""
-            team1_wickets=""
-            team1_economy=""
-            
-            for player in m.team1.players :
-                match_data.team1_total_runs+=player.batstats.runs 
-                if int(player.batstats.balls_faced) > 0 :
-                    strike_rate=round(player.batstats.runs/player.batstats.balls_faced*100,2)
-                else :
-                    strike_rate=0
-                strike_rate=str(strike_rate)
-                team1_sr=team1_sr + "," + strike_rate
-                team1_batters=team1_batters + "," + player.name
-                team1_runs=team1_runs + "," + str(player.batstats.runs)
-                team1_balls=team1_balls + "," + str(player.batstats.balls_faced)
-                team1_fours=team1_fours + "," + str(player.batstats.num_fours)
-                team1_sixes=team1_sixes + "," + str(player.batstats.num_sixes)
-                
-                
-                #updating player stat
-                player_object=Player.objects.get(team=team1,tournament=tournament,name=player.name)
-                player_object.runs_scored += player.batstats.runs 
-                player_object.balls_faced += player.batstats.balls_faced 
-                player_object.no_fours+=player.batstats.num_fours
-                player_object.no_sixes+=player.batstats.num_sixes
-                    
-                    
-                
-                
-                if int(player.bowlstats.overs)>0 :
-                    match_data.team1_total_overs+=player.bowlstats.overs
-                    economy=round(player.bowlstats.runs/player.bowlstats.overs,2)
-                    economy=str(economy)
-                    team1_economy=team1_economy + "," + economy
-                    team1_bowlers=team1_bowlers + "," + player.name
-                    team1_overs=team1_overs + "," + str(player.bowlstats.overs)
-                    team1_bowler_runs=team1_bowler_runs + "," + str(player.bowlstats.runs)
-                    team1_wickets=team1_wickets + "," + str(player.bowlstats.wickets)
-                    match_data.team1_total_wickets+=player.bowlstats.wickets
-                    
-                    
-                    #updating player bowl stat
-                    player_object.wickets+=player.bowlstats.wickets
-                    player_object.overs += player.bowlstats.overs
-                    player_object.runs_conceded+=player.bowlstats.runs 
-                    player_object.save()
-            
-            match_data.team1_batters=team1_batters
-            match_data.team1_runs=team1_runs
-            match_data.team1_balls=team1_balls
-            match_data.team1_fours=team1_fours
-            match_data.team1_sixes=team1_sixes
-            match_data.team1_strike_rates=team1_sr
-            match_data.team1_bowlers=team1_bowlers
-            match_data.team1_overs=team1_overs
-            match_data.team1_bowler_runs=team1_bowler_runs
-            match_data.team1_wickets=team1_wickets
-            match_data.team1_economy=team1_economy
-            
-            
-            
-            team2_batters=""
-            team2_runs=""
-            team2_balls=""
-            team2_fours=""
-            team2_sixes=""
-            team2_sr=""
-            team2_bowlers=""
-            team2_overs=""
-            team2_bowler_runs=""
-            team2_wickets=""
-            team2_economy=""
-            
-            for player in m.team2.players :
-                match_data.team2_total_runs+=player.batstats.runs 
-                if(player.batstats.balls_faced>0):
-                    strike_rate=round(player.batstats.runs/player.batstats.balls_faced*100,2)
-                else :
-                    strike_rate=0
-                strike_rate=str(strike_rate)
-                team2_sr=team2_sr + "," + strike_rate
-                team2_batters=team2_batters + "," + player.name
-                team2_runs=team2_runs + "," + str(player.batstats.runs)
-                team2_balls=team2_balls + "," + str(player.batstats.balls_faced)
-                team2_fours=team2_fours + "," + str(player.batstats.num_fours)
-                team2_sixes=team2_sixes + "," + str(player.batstats.num_sixes)
-                
-                
-                #updating player stat
-                player_object=Player.objects.get(team=team2,tournament=tournament,name=player.name)
-                player_object.runs_scored += player.batstats.runs 
-                player_object.balls_faced += player.batstats.balls_faced 
-                player_object.no_fours+=player.batstats.num_fours
-                player_object.no_sixes+=player.batstats.num_sixes
-                
-                if player.bowlstats.overs>0 :
-                    match_data.team2_total_overs+=player.bowlstats.overs
-                    economy=round(player.bowlstats.runs/player.bowlstats.overs,2)
-                    economy=str(economy)
-                    team2_economy=team2_economy + "," + economy
-                    team2_bowlers=team2_bowlers + "," + player.name
-                    team2_overs=team2_overs + "," + str(player.bowlstats.overs)
-                    team2_bowler_runs=team2_bowler_runs + "," + str(player.bowlstats.runs)
-                    team2_wickets=team2_wickets + "," + str(player.bowlstats.wickets)
-                    match_data.team2_total_wickets+=player.bowlstats.wickets
-                    
-                    #updating player bowl stat
-                    player_object.wickets+=player.bowlstats.wickets
-                    player_object.overs += player.bowlstats.overs
-                    player_object.runs_conceded+=player.bowlstats.runs 
-                    player_object.save()
-            
-            match_data.team2_batters=team2_batters
-            match_data.team2_runs=team2_runs
-            match_data.team2_balls=team2_balls
-            match_data.team2_fours=team2_fours
-            match_data.team2_sixes=team2_sixes
-            match_data.team2_strike_rates=team2_sr
-            match_data.team2_bowlers=team2_bowlers
-            match_data.team2_overs=team2_overs
-            match_data.team2_bowler_runs=team2_bowler_runs
-            match_data.team2_wickets=team2_wickets
-            match_data.team2_economy=team2_economy
-            
-            match_data.save()
-            
-            if match_data.team2_total_runs > match_data.team1_total_runs : 
-                team2.won+=1
-                team1.lost+=1
-                team2.points+=2
-                team2.last_5_matches = 'W'+team2.last_5_matches
-                team1.last_5_matches='L'+team1.last_5_matches
-                
-                if len(team2.last_5_matches)>5 :
-                    team2.last_5_matches=team2.last_5_matches[:-1]
-                if len(team1.last_5_matches)>5 :
-                    team1.last_5_matches=team1.last_5_matches[:-1]
-                
-            if match_data.team2_total_runs < match_data.team1_total_runs : 
-                team1.won+=1
-                team2.lost+=1
-                team1.points+=2
-                team2.last_5_matches = 'L'+team2.last_5_matches
-                team1.last_5_matches='W'+team1.last_5_matches
-                
-                if len(team2.last_5_matches)>5 :
-                    team2.last_5_matches=team2.last_5_matches[:-1]
-                if len(team1.last_5_matches)>5 :
-                    team1.last_5_matches=team1.last_5_matches[:-1]
-                
-            if match_data.team2_total_runs == match_data.team1_total_runs : 
-                team2.draw+=1
-                team1.draw+=1
-                team2.points+=1
-                team1.points+=1
-                team2.last_5_matches = 'D'+team2.last_5_matches
-                team1.last_5_matches='D'+team1.last_5_matches
-                
-                if len(team2.last_5_matches)>5 :
-                    team2.last_5_matches=team2.last_5_matches[:-1]
-                if len(team1.last_5_matches)>5 :
-                    team1.last_5_matches=team1.last_5_matches[:-1]
-                
-            team1.save()
-            team2.save()
-        return redirect('home',tournament=tournament.name)
+        matches_remaining=len(schedule_list)
+        matches_completed=total_matches-matches_remaining
+        error=None
+        if matches_remaining==0 :
+            error="No matches remaining"
+        elif matches_no<=matches_remaining and matches_no>0 :
         
+            for schedule in schedule_list :
+                schedule.is_over=True
+                schedule.save()
+                team1=Team.objects.get(name=schedule.team1,tournament=tournament)
+                team2=Team.objects.get(name=schedule.team2,tournament=tournament)
+                team1.played+=1
+                team2.played+=1
+                
+                t1=team(team1.name)
+                players=Player.objects.filter(team=team1,tournament=tournament)
+                for x in players :
+                    t1.players.append(player2(x.name,x.role))
+                t1.captain=team1.captain
+                
+                t2=team(team2.name)
+                players=Player.objects.filter(team=team2,tournament=tournament)
+                for x in players :
+                    t2.players.append(player2(x.name,x.role))
+                t2.captain=team2.captain
+                
+                m=match(t1,t2)
+                m.sim_match(t1,t2)
+                
+                match_data=Match()
+                match_data.schedule=schedule
+                
+                #Updating the scorecard (match record)
+                team1_batters=""
+                team1_runs=""
+                team1_balls=""
+                team1_fours=""
+                team1_sixes=""
+                team1_sr=""
+                team1_bowlers=""
+                team1_overs=""
+                team1_bowler_runs=""
+                team1_wickets=""
+                team1_economy=""
+                
+                for player in m.team1.players :
+                    match_data.team1_total_runs+=player.batstats.runs 
+                    if int(player.batstats.balls_faced) > 0 :
+                        strike_rate=round(player.batstats.runs/player.batstats.balls_faced*100,2)
+                    else :
+                        strike_rate=0
+                    strike_rate=str(strike_rate)
+                    team1_sr=team1_sr + "," + strike_rate
+                    team1_batters=team1_batters + "," + player.name
+                    team1_runs=team1_runs + "," + str(player.batstats.runs)
+                    team1_balls=team1_balls + "," + str(player.batstats.balls_faced)
+                    team1_fours=team1_fours + "," + str(player.batstats.num_fours)
+                    team1_sixes=team1_sixes + "," + str(player.batstats.num_sixes)
+                    
+                    
+                    #updating player stat
+                    player_object=Player.objects.get(team=team1,tournament=tournament,name=player.name)
+                    player_object.runs_scored += player.batstats.runs 
+                    player_object.balls_faced += player.batstats.balls_faced 
+                    player_object.no_fours+=player.batstats.num_fours
+                    player_object.no_sixes+=player.batstats.num_sixes
+                        
+                        
+                    
+                    
+                    if int(player.bowlstats.overs)>0 :
+                        match_data.team1_total_overs+=player.bowlstats.overs
+                        economy=round(player.bowlstats.runs/player.bowlstats.overs,2)
+                        economy=str(economy)
+                        team1_economy=team1_economy + "," + economy
+                        team1_bowlers=team1_bowlers + "," + player.name
+                        team1_overs=team1_overs + "," + str(player.bowlstats.overs)
+                        team1_bowler_runs=team1_bowler_runs + "," + str(player.bowlstats.runs)
+                        team1_wickets=team1_wickets + "," + str(player.bowlstats.wickets)
+                        match_data.team1_total_wickets+=player.bowlstats.wickets
+                        
+                        
+                        #updating player bowl stat
+                        player_object.wickets+=player.bowlstats.wickets
+                        player_object.overs += player.bowlstats.overs
+                        player_object.runs_conceded+=player.bowlstats.runs 
+                        player_object.save()
+                
+                match_data.team1_batters=team1_batters
+                match_data.team1_runs=team1_runs
+                match_data.team1_balls=team1_balls
+                match_data.team1_fours=team1_fours
+                match_data.team1_sixes=team1_sixes
+                match_data.team1_strike_rates=team1_sr
+                match_data.team1_bowlers=team1_bowlers
+                match_data.team1_overs=team1_overs
+                match_data.team1_bowler_runs=team1_bowler_runs
+                match_data.team1_wickets=team1_wickets
+                match_data.team1_economy=team1_economy
+                
+                
+                
+                team2_batters=""
+                team2_runs=""
+                team2_balls=""
+                team2_fours=""
+                team2_sixes=""
+                team2_sr=""
+                team2_bowlers=""
+                team2_overs=""
+                team2_bowler_runs=""
+                team2_wickets=""
+                team2_economy=""
+                
+                for player in m.team2.players :
+                    match_data.team2_total_runs+=player.batstats.runs 
+                    if(player.batstats.balls_faced>0):
+                        strike_rate=round(player.batstats.runs/player.batstats.balls_faced*100,2)
+                    else :
+                        strike_rate=0
+                    strike_rate=str(strike_rate)
+                    team2_sr=team2_sr + "," + strike_rate
+                    team2_batters=team2_batters + "," + player.name
+                    team2_runs=team2_runs + "," + str(player.batstats.runs)
+                    team2_balls=team2_balls + "," + str(player.batstats.balls_faced)
+                    team2_fours=team2_fours + "," + str(player.batstats.num_fours)
+                    team2_sixes=team2_sixes + "," + str(player.batstats.num_sixes)
+                    
+                    
+                    #updating player stat
+                    player_object=Player.objects.get(team=team2,tournament=tournament,name=player.name)
+                    player_object.runs_scored += player.batstats.runs 
+                    player_object.balls_faced += player.batstats.balls_faced 
+                    player_object.no_fours+=player.batstats.num_fours
+                    player_object.no_sixes+=player.batstats.num_sixes
+                    
+                    if player.bowlstats.overs>0 :
+                        match_data.team2_total_overs+=player.bowlstats.overs
+                        economy=round(player.bowlstats.runs/player.bowlstats.overs,2)
+                        economy=str(economy)
+                        team2_economy=team2_economy + "," + economy
+                        team2_bowlers=team2_bowlers + "," + player.name
+                        team2_overs=team2_overs + "," + str(player.bowlstats.overs)
+                        team2_bowler_runs=team2_bowler_runs + "," + str(player.bowlstats.runs)
+                        team2_wickets=team2_wickets + "," + str(player.bowlstats.wickets)
+                        match_data.team2_total_wickets+=player.bowlstats.wickets
+                        
+                        #updating player bowl stat
+                        player_object.wickets+=player.bowlstats.wickets
+                        player_object.overs += player.bowlstats.overs
+                        player_object.runs_conceded+=player.bowlstats.runs 
+                        player_object.save()
+                
+                match_data.team2_batters=team2_batters
+                match_data.team2_runs=team2_runs
+                match_data.team2_balls=team2_balls
+                match_data.team2_fours=team2_fours
+                match_data.team2_sixes=team2_sixes
+                match_data.team2_strike_rates=team2_sr
+                match_data.team2_bowlers=team2_bowlers
+                match_data.team2_overs=team2_overs
+                match_data.team2_bowler_runs=team2_bowler_runs
+                match_data.team2_wickets=team2_wickets
+                match_data.team2_economy=team2_economy
+                
+                match_data.save()
+                
+                if match_data.team2_total_runs > match_data.team1_total_runs : 
+                    team2.won+=1
+                    team1.lost+=1
+                    team2.points+=2
+                    team2.last_5_matches = 'W'+team2.last_5_matches
+                    team1.last_5_matches='L'+team1.last_5_matches
+                    
+                    if len(team2.last_5_matches)>5 :
+                        team2.last_5_matches=team2.last_5_matches[:-1]
+                    if len(team1.last_5_matches)>5 :
+                        team1.last_5_matches=team1.last_5_matches[:-1]
+                    
+                if match_data.team2_total_runs < match_data.team1_total_runs : 
+                    team1.won+=1
+                    team2.lost+=1
+                    team1.points+=2
+                    team2.last_5_matches = 'L'+team2.last_5_matches
+                    team1.last_5_matches='W'+team1.last_5_matches
+                    
+                    if len(team2.last_5_matches)>5 :
+                        team2.last_5_matches=team2.last_5_matches[:-1]
+                    if len(team1.last_5_matches)>5 :
+                        team1.last_5_matches=team1.last_5_matches[:-1]
+                    
+                if match_data.team2_total_runs == match_data.team1_total_runs : 
+                    team2.draw+=1
+                    team1.draw+=1
+                    team2.points+=1
+                    team1.points+=1
+                    team2.last_5_matches = 'D'+team2.last_5_matches
+                    team1.last_5_matches='D'+team1.last_5_matches
+                    
+                    if len(team2.last_5_matches)>5 :
+                        team2.last_5_matches=team2.last_5_matches[:-1]
+                    if len(team1.last_5_matches)>5 :
+                        team1.last_5_matches=team1.last_5_matches[:-1]
+                    
+                team1.save()
+                team2.save()
+            return redirect('home',tournament=tournament.name)
+        else :
+            error="Enter a proper number of matches"
+    else :
+        matches_remaining=schedule_table.objects.filter(tournament=tournament,is_over=False).count()
+        matches_completed=total_matches-matches_remaining
+        error=None
+        if matches_remaining==0 :
+            error="No matches remaining"
             
-    return render(request,'simulate.html',{"tournament":tournament})
+    return render(request,'simulate.html',{"tournament":tournament,"matches_remaining":matches_remaining,"matches_completed":matches_completed,"error":error})
 
 
 @login_required
@@ -447,3 +462,33 @@ def team_stat(request,tournament):
         
     
     return render(request,'team_stats.html',{"tournament":tournament,"teams":teams,"team":team,"top_scorer":top_scorer,"top_wickettaker":top_wickettaker,"team_id":team_id})
+
+@login_required
+def tournament_stat(request,tournament):
+    tournament=Tournament.objects.get(name=tournament)
+    top_scorers=Player.objects.filter(tournament=tournament).order_by('-runs_scored')[0:5]
+    top_wickettakers=Player.objects.filter(tournament=tournament).order_by('-wickets')[0:5]
+    return render(request,'tournament_stats.html',{"tournament":tournament,"top_scorers":top_scorers,"top_wickettakers":top_wickettakers})
+
+@login_required
+def player_stats(request,tournament) :
+    tournament=Tournament.objects.get(name=tournament)
+    teams=Team.objects.filter(tournament=tournament)
+    team_id=request.GET.get('team_id',None)
+    
+    if team_id :
+        team=Team.objects.get(id=team_id)
+        players=Player.objects.filter(team=team_id)
+        player_id=request.GET.get('player_id',None)
+        
+        if player_id :
+            player=Player.objects.get(id=player_id)
+        else :
+            player=None
+        
+    else :
+        players=None
+        player=None
+        player_id=None
+        team=None
+    return render(request,'player_stats.html',{"tournament":tournament,"teams":teams,"players":players,"team_id":team_id,"player":player,"player_id":player_id,"team":team})
