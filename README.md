@@ -1,6 +1,6 @@
 # CricSim-webapp
 
-A website simulating cricket tournaments , made using HTML , CSS and Django
+A website simulating cricket tournaments, made using HTML, Tailwind CSS and Django
 
 ## Features of the website 
 This website allows users to :
